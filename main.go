@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -27,12 +28,28 @@ var books []Book
 // Get all Books
 // route handlers must take in response and request
 func getBooks(w http.ResponseWriter, r *http.Request) {
+	// set header value
+	w.Header().Set("Content-Type", "application/json")
+	// pass in response writer
+	json.NewEncoder(w).Encode(books)
 
 }
 
 // Get single book
 func getBook(w http.ResponseWriter, r *http.Request) {
-
+	// set header value
+	w.Header().Set("Content-Type", "application/json")
+	// Get params
+	params := mux.Vars(r)
+	// Loop through books and find the one with correct Id
+	for _, item := range books {
+		if item.ID == params["id"] {
+			// output item
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(&Book{})
 }
 
 // Create book
@@ -55,7 +72,6 @@ func main() {
 	r := mux.NewRouter()
 
 	// Mock Data
-	// to do - implement database
 	books = append(books, Book{ID: "1", Isbn: "448734", Title: "Book1", Author: &Author{
 		FirstName: "Olivia", LastName: "Kaye",
 	}})
